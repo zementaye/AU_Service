@@ -1516,17 +1516,23 @@ mark.search-highlight {
   height: auto;
   opacity: 0.92;
   filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.4));
-  animation: login-emblem-spin 42s linear infinite;
+  animation: login-emblem-sway 9s ease-in-out infinite;
+  transform-style: preserve-3d;
   pointer-events: none;
   user-select: none;
 }
 
-@keyframes login-emblem-spin {
-  from {
-    transform: rotate(0deg);
+/* Turns left-to-right (and back) on its vertical axis, like a coin being
+   slowly rotated between two fingers, rather than spinning flat like a
+   pinwheel. Self-contained perspective() so it doesn't depend on how deep
+   the ancestor 3D context happens to be. */
+@keyframes login-emblem-sway {
+  0%,
+  100% {
+    transform: perspective(700px) rotateY(-34deg);
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    transform: perspective(700px) rotateY(34deg);
   }
 }
 

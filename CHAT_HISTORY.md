@@ -319,3 +319,39 @@ takes effect after a fresh build picks up the new `_redirects` file.
 - Attachment storage migration — still waiting on a storage provider
   decision (S3, R2, etc.).
 - Dark mode theme, accessibility pass, email notifications on status change.
+
+**Request 14:** Screenshot of the emblem showing it's blurry at display size,
+asked for it to rotate left-to-right instead, and to find a better-pixel
+version of the same image.
+
+**Emblem rotation + resolution (partially done):**
+- `frontend/public/au-emblem.png` — resampled from the original 68×60
+  source up to 480×424 using a supersample-then-downsize technique (scale
+  16x with Lanczos, Gaussian blur to kill jagged/aliased edges, resize back
+  down, slight alpha contrast boost). Smoother than a raw browser stretch,
+  but this is a ceiling, not a fix — no resampling can recover detail that
+  was never in a 68×60 source. Flagged to the user that Claude has no
+  image-download capability (`web_fetch` explicitly rejects image content;
+  `image_search` only displays pictures to the user, doesn't return files
+  Claude can save) — a genuinely sharp replacement needs the user to
+  download the official asset themselves (au.int/en/about/symbols, or the
+  Wikimedia Commons vector `File:Flag_of_the_African_Union.svg`) and upload
+  it here for processing.
+- `frontend/src/styles/global.css` — replaced the flat `rotate()` spin
+  (`login-emblem-spin`, spun like a coin lying face-up) with a `rotateY()`
+  swivel (`login-emblem-sway`, 9s ease-in-out infinite, -34deg to 34deg and
+  back) so it visibly turns left-to-right on its vertical axis, like a coin
+  being rotated between two fingers. Self-contained `perspective(700px)`
+  inside the keyframe's own transform value so it doesn't depend on the
+  ancestor 3D context. Composes with the existing cursor-tilt effect on
+  `.login-emblem-wrap` (different element, so no conflict).
+
+**Delivered:** re-zipped project as `AU_Service-main_emblem-sway-animation.zip`.
+
+**Still queued:**
+- A genuinely higher-resolution `au-emblem.png` — waiting on the user to
+  supply a source image.
+- Wire a real email provider into `forgot-password` when one is chosen.
+- Attachment storage migration — still waiting on a storage provider
+  decision (S3, R2, etc.).
+- Dark mode theme, accessibility pass, email notifications on status change.
