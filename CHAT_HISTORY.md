@@ -288,3 +288,34 @@ rotating, tilting away from the cursor on hover — and for the sidebar/topbar
   Cancel / Sign out (`btn-danger`) actions.
 
 **Delivered:** re-zipped project as `AU_Service-main_animated-logo-signout-confirm.zip`.
+
+**Request 13:** Screenshot of `au-service-e66w.onrender.com/login` showing a
+bare "Not Found" page. Diagnosed as a static-host SPA fallback issue, not an
+app bug: the deployed frontend has no `_redirects`/rewrite rule anywhere in
+the repo, so Render's static host 404s on any deep link or refresh to a
+client-side route (`/login`, `/reports`, `/reset-password`, etc.) instead of
+serving `index.html` and letting React Router take over.
+
+**Fix (done):**
+- `frontend/public/_redirects` (new) — `/* /index.html 200`, the same
+  redirect-file format Render's static hosting supports (shared with
+  Netlify). Vite copies `public/` contents to the build output root as-is,
+  so this ships with the next deploy automatically.
+- `CLAUDE.md` — documented this in "Project shape" so it doesn't get
+  deleted/missed later, and noted the frontend has no `render.yaml` of its
+  own (it was provisioned manually as a Render static site, only the
+  backend API has one).
+
+**Still needed from the user's side (can't be done from here):** push this
+commit, then either wait for Render's auto-deploy (if the static site is
+connected to auto-deploy on push) or manually trigger "Deploy latest
+commit" in the Render dashboard for the frontend static site — the fix only
+takes effect after a fresh build picks up the new `_redirects` file.
+
+**Delivered:** re-zipped project as `AU_Service-main_spa-redirect-fix.zip`.
+
+**Still queued:**
+- Wire a real email provider into `forgot-password` when one is chosen.
+- Attachment storage migration — still waiting on a storage provider
+  decision (S3, R2, etc.).
+- Dark mode theme, accessibility pass, email notifications on status change.

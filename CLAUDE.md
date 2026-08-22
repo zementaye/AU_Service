@@ -11,7 +11,18 @@ how to make changes consistently. Read this before editing frontend code.
   - `src/context/AuthContext.jsx` — auth/user state
   - `src/lib/` — api client, permissions, statuses, csv helpers
   - `src/styles/global.css` — the ONLY stylesheet; no CSS modules, no styled-components
-- `backend/` — Node server (`server.js`), `schema.sql`, `seed.js`
+  - `public/_redirects` — SPA fallback rule for Render's static host
+    (`/* /index.html 200`). Without this, any deep link or refresh on a
+    client-side route (`/login`, `/reports`, etc.) 404s, because the static
+    host looks for a literal file at that path before React Router ever
+    loads. Vite copies everything in `public/` to the build output root
+    verbatim, so this ships automatically — don't remove it, and if a new
+    static host is ever used instead of Render, port this rule to
+    whatever format that host expects.
+- `backend/` — Node server (`server.js`), `schema.sql`, `seed.js`,
+  `render.yaml` (backend API service config — no frontend service is
+  defined in the repo; the static site was provisioned manually in the
+  Render dashboard)
 
 ## Design system (styles/global.css)
 
