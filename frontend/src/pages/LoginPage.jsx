@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import LoginArtPanel from "../components/LoginArtPanel";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -29,17 +30,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-wrap">
-      <div className="login-art">
-        <div className="brand">
-          <div className="brand-mark">AU</div>
-          <div className="brand-title" style={{ color: "#fff", fontSize: 19 }}>
-            Service Requests
-          </div>
-        </div>
-        <p className="login-art-quote">
-          "One request, tracked from submission to close — across every department."
-        </p>
-      </div>
+      <LoginArtPanel quote="One request, tracked from submission to close — across every department." />
       <div className="login-form-side">
         <form className="login-card" onSubmit={handleSubmit}>
           <span className="eyebrow">Sign in</span>

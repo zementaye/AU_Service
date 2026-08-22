@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
+import LoginArtPanel from "../components/LoginArtPanel";
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -39,17 +40,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="login-wrap">
-      <div className="login-art">
-        <div className="brand">
-          <div className="brand-mark">AU</div>
-          <div className="brand-title" style={{ color: "#fff", fontSize: 19 }}>
-            Service Requests
-          </div>
-        </div>
-        <p className="login-art-quote">
-          "One request, tracked from submission to close — across every department."
-        </p>
-      </div>
+      <LoginArtPanel quote="One request, tracked from submission to close — across every department." />
       <div className="login-form-side">
         <form className="login-card" onSubmit={handleSubmit}>
           <span className="eyebrow">Account recovery</span>

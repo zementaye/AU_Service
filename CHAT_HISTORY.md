@@ -250,3 +250,41 @@ response outside production, rather than sending a real email).
   decision (S3, R2, etc.).
 - Dark mode theme, accessibility pass, email notifications on status change.
 
+
+**Request 12:** Uploaded a screenshot of the deployed login page
+(`au-service-e66w.onrender.com/login`) pointing out the empty center-left
+space in the dark green art panel, asked for a logo there — animated,
+rotating, tilting away from the cursor on hover — and for the sidebar/topbar
+"Sign out" button to ask for confirmation instead of signing out instantly.
+
+**Login art panel + sign-out confirmation (done):**
+- Discovered `frontend/public/au-emblem.png` (the AU seal, white-on-transparent,
+  68×60) was already in the project but unused on the auth pages — `Layout.jsx`
+  already used it in the sidebar/topbar, `LoginPage.jsx` was still rendering
+  a plain "AU" text div instead.
+- `frontend/src/components/LoginArtPanel.jsx` (new) — extracted the shared
+  dark-green art panel (brand row + centered emblem + quote) used by Login,
+  Forgot Password, and Reset Password so the tilt logic isn't duplicated
+  three times. Takes a `quote` prop.
+  - The centered emblem spins continuously via a CSS keyframe
+    (`login-emblem-spin`, 42s linear infinite) and, on `mousemove` over its
+    stage, tilts on 3D `rotateX`/`rotateY` calculated from cursor position
+    relative to center — signed so the edge nearest the cursor dips AWAY
+    (into the screen) rather than the more common "tilt toward cursor"
+    effect. Resets smoothly on `mouseleave`. Respects
+    `prefers-reduced-motion: reduce` (spin + tilt transition both disabled).
+- `frontend/src/styles/global.css` — added `.login-emblem-stage` (provides
+  `perspective`), `.login-emblem-wrap` (receives the JS-driven tilt
+  transform, transitions smoothly), `.login-emblem` (the spinning image),
+  `@keyframes login-emblem-spin`, and the reduced-motion override.
+- `frontend/src/pages/LoginPage.jsx`, `ForgotPasswordPage.jsx`,
+  `ResetPasswordPage.jsx` — all three now render `<LoginArtPanel quote="…" />`
+  instead of a hand-rolled `.login-art` block with plain "AU" text.
+- `frontend/src/components/Layout.jsx` — both "Sign out" buttons (desktop
+  sidebar footer + mobile topbar) now open a confirmation `<Modal>` (reusing
+  the existing `Modal` component and `.modal-actions` pattern from
+  `RequestDetailPage.jsx`) instead of calling `logout()` directly. Modal
+  copy: "You'll need to sign back in to access your requests." with
+  Cancel / Sign out (`btn-danger`) actions.
+
+**Delivered:** re-zipped project as `AU_Service-main_animated-logo-signout-confirm.zip`.

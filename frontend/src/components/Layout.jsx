@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import NotificationsBell from "./NotificationsBell";
+import Modal from "./Modal";
 
 const NAV_ITEMS = [
   { to: "/", label: "Requests", icon: "☰" },
@@ -24,6 +26,7 @@ function initials(name = "") {
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [confirmingLogout, setConfirmingLogout] = useState(false);
 
   function handleLogout() {
     logout();
@@ -83,7 +86,7 @@ export default function Layout({ children }) {
               <NotificationsBell />
             </div>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>
+          <button className="logout-btn" onClick={() => setConfirmingLogout(true)}>
             Sign out
           </button>
         </div>
@@ -100,7 +103,7 @@ export default function Layout({ children }) {
               <span className="settings-icon" aria-hidden="true">⚙</span>
             </NavLink>
             <NotificationsBell />
-            <button className="logout-btn" onClick={handleLogout}>
+            <button className="logout-btn" onClick={() => setConfirmingLogout(true)}>
               Sign out
             </button>
           </div>
@@ -131,6 +134,22 @@ export default function Layout({ children }) {
             ))}
         </nav>
       </div>
+
+      {confirmingLogout && (
+        <Modal title="Sign out?" onClose={() => setConfirmingLogout(false)}>
+          <p style={{ color: "var(--ink-soft)", fontSize: 14 }}>
+            You'll need to sign back in to access your requests.
+          </p>
+          <div className="modal-actions">
+            <button className="btn btn-ghost btn-sm" onClick={() => setConfirmingLogout(false)}>
+              Cancel
+            </button>
+            <button className="btn btn-danger btn-sm" onClick={handleLogout}>
+              Sign out
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
