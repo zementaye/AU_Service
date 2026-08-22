@@ -194,3 +194,10 @@ a fixed filename, and to always extract into a fixed destination folder
 name regardless of the zip's own name, so `.git` keeps persisting across
 sessions.
 
+**Request 10:** "for the zip file name them the actual name + what we fixed
+leave the date" — replace the timestamp suffix with a short kebab-case
+description of the change instead. Updated the "RULE: name every delivered
+zip uniquely" section in `CLAUDE.md` accordingly:
+`AU_Service-main_<what-was-fixed>.zip` (e.g.
+`AU_Service-main_zip-naming-convention.zip` for this delivery), no date.
+

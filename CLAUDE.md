@@ -62,15 +62,20 @@ The person works from an uploaded zip, asks for changes, and gets a
 re-zipped project back. Chat history and session notes for that workflow are
 kept in `CHAT_HISTORY.md` at the repo root — append to it, don't overwrite it.
 
-## RULE: name every delivered zip uniquely
+## RULE: name every delivered zip uniquely — describe the fix, not the date
 
 Never deliver the zip as a bare `AU_Service-main.zip` — the browser appends
 `(1)`, `(2)`, etc. on repeat downloads to the same folder, and then the
-PowerShell block has to guess which one is current. Always suffix it with a
-timestamp: `AU_Service-main_YYYYMMDD-HHMMSS.zip` (build it with
-`Get-Date -Format 'yyyyMMdd-HHmmss'` when zipping). This also makes it
-trivial to script "grab the newest one" instead of hardcoding a filename —
-see the push block below.
+PowerShell block has to guess which one is current. Suffix it with a short
+kebab-case description of what that delivery changed instead of a
+timestamp: `AU_Service-main_<what-was-fixed>.zip`, e.g.
+`AU_Service-main_animated-header-icons.zip`,
+`AU_Service-main_requests-pagination.zip`,
+`AU_Service-main_reports-date-filter.zip`. Keep it to a few words, no
+spaces (use hyphens). This still makes "grab the newest one" scriptable via
+`LastWriteTime` (see the push block below) since a new description means a
+new filename each time — just don't reuse the exact same description twice
+in one session, or the `(1)`/`(2)` problem comes back.
 
 ## RULE: pushing the zip to GitHub — always give one PowerShell block
 
