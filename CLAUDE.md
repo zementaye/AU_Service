@@ -62,29 +62,46 @@ The person works from an uploaded zip, asks for changes, and gets a
 re-zipped project back. Chat history and session notes for that workflow are
 kept in `CHAT_HISTORY.md` at the repo root — append to it, don't overwrite it.
 
+## RULE: name every delivered zip uniquely
+
+Never deliver the zip as a bare `AU_Service-main.zip` — the browser appends
+`(1)`, `(2)`, etc. on repeat downloads to the same folder, and then the
+PowerShell block has to guess which one is current. Always suffix it with a
+timestamp: `AU_Service-main_YYYYMMDD-HHMMSS.zip` (build it with
+`Get-Date -Format 'yyyyMMdd-HHmmss'` when zipping). This also makes it
+trivial to script "grab the newest one" instead of hardcoding a filename —
+see the push block below.
+
 ## RULE: pushing the zip to GitHub — always give one PowerShell block
 
 When the person needs to get an updated zip onto GitHub, give them a single
 copy-pasteable PowerShell block that goes all the way from unzipping to
 pushing — never split it into "first do X, then run this other script."
-Base it on this template (adjust `$zipName` / repo folder name / remote /
-branch to match the actual delivered zip and repo):
+Base it on this template (adjust the glob pattern / repo folder name /
+remote / branch to match the actual delivered zip and repo). It finds the
+most recently downloaded zip automatically, so it keeps working even with
+the `(1)`/`(2)` suffixes Windows adds on repeat downloads, and always
+extracts into the SAME fixed destination folder (not one named after the
+timestamped zip) so `.git` persists across sessions instead of the
+fresh-`.git`-every-time problem from before:
 
 ```powershell
 # --- 0. Go to the folder where the zip was downloaded ---
 cd $HOME\Downloads
 
-# --- 1. Unzip ---
-$zipName = "AU_Service-main"
-Expand-Archive -Path ".\$zipName.zip" -DestinationPath ".\$zipName" -Force
+# --- 1. Find the newest matching zip (handles (1)/(2) suffixes) and unzip
+#        into a FIXED destination folder name, not the zip's own name ---
+$destName = "AU_Service-main"
+$zip = Get-ChildItem ".\AU_Service-main*.zip" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+Expand-Archive -Path $zip.FullName -DestinationPath ".\$destName" -Force
 
 # --- 2. Flatten if the zip has one top-level folder inside itself ---
-$inner = Get-ChildItem ".\$zipName"
+$inner = Get-ChildItem ".\$destName"
 if ($inner.Count -eq 1 -and $inner[0].PSIsContainer) {
-    Move-Item "$($inner[0].FullName)\*" ".\$zipName" -Force
+    Move-Item "$($inner[0].FullName)\*" ".\$destName" -Force
     Remove-Item $inner[0].FullName -Recurse -Force
 }
-cd ".\$zipName"
+cd ".\$destName"
 
 # --- 3. Git init (skip init/checkout if .git already exists) ---
 if (-not (Test-Path ".git")) {
@@ -111,8 +128,22 @@ Notes to carry along with this block whenever it's given:
   fixes it for the current terminal session only.
 - HTTPS pushes prompt for a GitHub Personal Access Token, not the account
   password (unless Git Credential Manager / SSH is already configured).
-- If `git push` is rejected as non-fast-forward (remote already has commits,
-  e.g. an auto-created README), the fix is
-  `git pull origin main --allow-unrelated-histories` then push again.
+- If `git push` is rejected as non-fast-forward AND `git init` in this run
+  said "Initialized empty Git repository" (i.e. there was no existing
+  `.git` to skip past), the local folder lost its git history since the
+  last push — most likely the Downloads folder got wiped/re-extracted
+  between sessions. Since the delivered zip is always the full cumulative
+  project (a superset of whatever's already on GitHub, never a diff), the
+  fix is simply `git push -u origin main --force` — nothing is lost. Longer
+  term, tell the person to stop re-extracting into Downloads each time
+  (which often gets cleared) and instead keep one persistent working copy
+  (e.g. `C:\Projects\AU_Service`) so `.git` survives between sessions and
+  pushes stay incremental.
+- If `git push` is rejected as non-fast-forward for any OTHER reason
+  (remote has commits from elsewhere, e.g. someone else pushed, or an
+  auto-created README, and the local `.git` DID already exist before this
+  run), the fix is `git pull origin main --allow-unrelated-histories` then
+  push again — don't force-push in this case, since local isn't guaranteed
+  to be a superset.
 - `git commit` will report "nothing to commit" harmlessly if the zip's
   contents didn't actually change since the last push — that's not an error.

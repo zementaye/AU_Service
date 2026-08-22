@@ -171,3 +171,26 @@ decisions from Batch 2/3, so picked the items that don't need one).
   decision (S3, R2, etc.).
 - Dark mode theme, accessibility pass, email notifications on status change.
 
+**Request 8:** Push failed again with `[rejected] main -> main (fetch first)`
+— this time because the local `.git` had been lost entirely (the run's
+output showed `Initialized empty Git repository`, meaning the Downloads
+folder had been wiped/re-extracted since the last successful push, not
+reused). Since the delivered zip is always cumulative (superset of what's
+already on GitHub), resolved with `git push -u origin main --force` rather
+than a merge. Added a note to the `CLAUDE.md` push-rule section
+distinguishing this case (force-push is safe) from a genuine "remote has
+independent changes" non-fast-forward (merge via
+`--allow-unrelated-histories` instead) — and a recommendation that the user
+stop re-extracting into Downloads each time and instead keep one persistent
+working folder so `.git` survives between sessions.
+
+**Request 9:** "rename the zip every time or else when i download it
+becomes (2) (3) etc." Added a "RULE: name every delivered zip uniquely"
+section to `CLAUDE.md` — every delivered zip now gets a
+`_YYYYMMDD-HHMMSS` timestamp suffix instead of a bare
+`AU_Service-main.zip`. Updated the push-block template in the same file to
+find the newest matching zip by glob + `LastWriteTime` instead of assuming
+a fixed filename, and to always extract into a fixed destination folder
+name regardless of the zip's own name, so `.git` keeps persisting across
+sessions.
+
