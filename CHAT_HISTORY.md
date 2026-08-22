@@ -1,0 +1,173 @@
+# Chat history / session log
+
+Append-only log of work done on this repo through Claude chat sessions.
+Newest entries at the bottom.
+
+---
+
+## Session 1 — 2026-08-21
+
+**User uploaded:**
+- Screenshot of the Settings page (account settings / change password form)
+- Screenshot of the header icon cluster (settings gear, notification bell,
+  Sign out button)
+- `AU_Service-main.zip` — the full project
+
+**Request 1:** "Cool now lets edit these buttons to make them animated like
+when we hover on setting it should spin or something and also the setting ui"
+
+**Changes made:**
+- `frontend/src/styles/global.css`
+  - Sign-out button (`.logout-btn`): hover now lifts slightly + brightens
+    border, with a proper transition.
+  - Settings gear (`.settings-btn` new class, layered onto existing
+    `.notif-bell`) and notification bell (`.notif-bell`): both get a gold
+    background highlight on hover/focus. Gear icon spins 180° on hover/focus.
+    Bell icon plays a "ring" wiggle keyframe animation on hover/focus.
+    Unread-count badge (`.notif-dot`) now pops in with a small bounce.
+  - Settings page: fixed a missing-padding bug (`.card` was used without
+    `.card-pad`), added `.settings-card` (fade/slide-in on mount, hover
+    shadow lift), `.settings-profile` / `.settings-avatar` (avatar circle
+    with initials, scales up slightly on hover), `.settings-name` /
+    `.settings-email`, `.settings-section-sub`, banner slide-in animation
+    for `.error-banner` / `.success-banner`, and a focus glow ring on
+    `.input`.
+- `frontend/src/components/Layout.jsx`
+  - Settings `NavLink` (both desktop sidebar footer and mobile topbar
+    instances) now has classes `notif-bell settings-btn`, and its icon span
+    has class `settings-icon`.
+- `frontend/src/components/NotificationsBell.jsx`
+  - Wrapped the 🔔 glyph in `<span className="notif-bell-icon">` so the
+    ring animation can target just the icon, not the whole button (badge
+    stays un-shaken).
+- `frontend/src/pages/SettingsPage.jsx`
+  - Added an `initials()` helper (same pattern as `Layout.jsx`'s).
+  - Replaced the plain name/email text with a `.settings-profile` header row
+    (avatar + name + email), separated from the form by a divider.
+  - Added a "Use at least 8 characters." subtitle under "Change password".
+  - Error/success messages now render with a leading ⚠ / ✓ glyph.
+
+**Delivered:** re-zipped project as `AU_Service-main.zip`.
+
+**Request 2:** Use PowerShell for the unzip → push-to-git workflow, and
+create two new files as part of that workflow:
+1. This file (`CHAT_HISTORY.md`) — full history of the chat/session.
+2. `CLAUDE.md` — project rules/conventions for future edits.
+
+All unzip/commit/push steps should be a single PowerShell script rather than
+bash — see `push-to-git.ps1` at the repo root (or wherever it was delivered
+alongside the zip).
+
+**Request 3:** `push-to-git.ps1` wasn't found — user ran it from
+`C:\Users\HP\AU_Service` while the script/zip were actually in Downloads.
+Explained `cd`/full-path fixes and the execution-policy bypass.
+
+**Request 4:** Gave the real GitHub remote
+(`https://github.com/zementaye/AU_Service`) and asked for one consolidated
+PowerShell block — unzip through push, no separate script file — and asked
+for it to be saved as a standing rule.
+
+**Change made:** added a "RULE: pushing the zip to GitHub" section to
+`CLAUDE.md` with the canonical copy-pasteable PowerShell block (unzip →
+flatten → git init → remote → commit → push), plus the execution-policy,
+PAT, and non-fast-forward notes that go with it. Future sessions should pull
+that block from `CLAUDE.md`, filling in the current zip name / repo URL /
+branch, rather than re-deriving it.
+
+**Request 5:** User pushed successfully (with a real merge-conflict resolve
+along the way — kept local `Layout.jsx`, `NotificationsBell.jsx`,
+`SettingsPage.jsx`, `global.css` via `checkout --ours`, since GitHub already
+had an earlier version of the repo). Then asked "what can we add/improve on
+the site?" — reviewed the rest of the codebase (all pages, `lib/api.js`,
+`lib/permissions.js`, `lib/statuses.js`, `AttachmentField.jsx`,
+`backend/server.js` routes) and proposed a prioritized list: forgot-password
+flow, request-list pagination, attachment storage (base64-in-Postgres → S3),
+skeleton loaders, Reports trend chart, search highlighting, dark mode, email
+notifications, accessibility pass, CSV date-range filter.
+
+**Request 6:** "Work on them in batches." Confirmed no new npm dependencies
+are installed on either side (`frontend/package.json` / `backend/package.json`
+checked) — everything below was built with what's already in the project, no
+`npm install` needed.
+
+**Batch 1 — frontend polish (done):**
+- `frontend/src/styles/global.css`
+  - New skeleton-loader classes (`.skeleton`, `.skeleton-line`,
+    `.skeleton-card`, `.skeleton-list`, `.skeleton-stats-row`,
+    `.skeleton-table-row`) with a shimmer keyframe animation.
+  - New `.password-field-wrap` / `.password-toggle` for the show/hide
+    password button.
+  - New `.search-result-count` and `mark.search-highlight` for the requests
+    list search.
+- `frontend/src/pages/LoginPage.jsx` — added a Show/Hide toggle on the
+  password field.
+- `frontend/src/pages/SettingsPage.jsx` — added a single "Show/Hide
+  passwords" toggle that controls all three password fields at once.
+- `frontend/src/pages/RequestsListPage.jsx` — loading state now renders 4
+  skeleton request-card shapes instead of a bare spinner; added a result
+  count line ("N results for '...'") when search/status filters are active;
+  passes `searchTerm` down to `RequestCard` for match highlighting.
+- `frontend/src/components/RequestCard.jsx` — added `highlightMatch()` and
+  wraps matches in the request ID and title with `<mark>` when a
+  `searchTerm` prop is passed.
+- `frontend/src/pages/ReportsPage.jsx` — loading state now renders skeleton
+  stat cards + skeleton table rows instead of a bare spinner. (Note: this
+  page already had a `DeptBarChart` component with its own `.bar-chart` CSS
+  — no new chart was needed, just better loading state.)
+- `frontend/src/pages/RequestDetailPage.jsx` — loading state now renders a
+  skeleton back-link + header card + comments card instead of a bare
+  spinner.
+
+**Delivered:** re-zipped project as `AU_Service-main.zip`.
+
+**Still queued (next batches, not started):**
+- Batch 2 — backend: pagination for `/api/requests`, forgot-password flow
+  (needs an SMTP/email decision from the user — no email lib installed yet).
+- Batch 3 — attachment storage migration to object storage (needs a
+  storage provider decision — S3, R2, etc. — before implementation).
+- Batch 4 — dark mode theme, accessibility pass, Reports CSV date-range
+  filter, email notifications on request status change.
+
+**Request 7:** "next batch" (no answer given yet on the SMTP/storage
+decisions from Batch 2/3, so picked the items that don't need one).
+
+**Batch 2 — pagination + report date filter (done):**
+- `backend/server.js`
+  - `GET /api/requests` — replaced the hardcoded `LIMIT 200` with real
+    `limit`/`offset` query params (limit capped 1–100, default 50).
+    Response shape changed from a bare array to
+    `{ requests, hasMore, offset, limit }` (fetches `limit + 1` rows to
+    derive `hasMore` without a separate `COUNT(*)`).
+  - `GET /api/reports/summary` — added optional `from`/`to` query params
+    (inclusive date range on `created_at`) applied to both the totals query
+    and the by-department query.
+- `frontend/src/lib/api.js`
+  - `listRequests()` — now allows falsy-but-defined values through (only
+    filters out `undefined`/`""`) so `offset: 0` isn't dropped.
+  - `reportsSummary(params)` — now takes `{ from, to }` and builds a query
+    string.
+- `frontend/src/pages/RequestsListPage.jsx`
+  - Added `PAGE_SIZE = 50`, `hasMore`/`loadingMore` state, and a `loadMore()`
+    fetcher; a "Load more" button appears under the list when there's another
+    page. Filter/search/scope/sort changes still reset to page 1.
+  - CSV export (`handleExport`) now fetches its own fresh batch (up to 2000
+    rows matching the current filters) instead of exporting only what's
+    loaded on screen, so export isn't silently truncated by pagination.
+  - Known limitation carried into a code comment: "Needs my action" filters
+    client-side over whatever's loaded so far, and the sort dropdown only
+    sorts loaded rows — both are page-local, not global, until an item is
+    loaded via "Load more".
+- `frontend/src/pages/ReportsPage.jsx`
+  - Added a `DateRangeFilter` component (From/To date inputs + "Clear
+    range") wired into `useEffect` so changing the range re-fetches the
+    summary. Shown on the loading, error, and loaded states alike so it's
+    never hidden. Export filename now includes the active range.
+
+**Delivered:** re-zipped project as `AU_Service-main.zip`.
+
+**Still queued:**
+- Forgot-password flow — still waiting on an SMTP/email provider decision.
+- Attachment storage migration — still waiting on a storage provider
+  decision (S3, R2, etc.).
+- Dark mode theme, accessibility pass, email notifications on status change.
+

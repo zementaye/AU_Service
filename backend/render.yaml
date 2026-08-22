@@ -1,0 +1,34 @@
+# No `databases:` block on purpose — we're using an external Postgres
+# provider (e.g. Neon) instead of Render's own free-tier database.
+# Set DATABASE_URL manually in the Render dashboard after this syncs
+# (sync: false below means Render won't try to manage that value).
+
+services:
+  - type: web
+    name: au-service-request-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: PGSSL
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true
+      # Set this to your deployed frontend's origin (e.g. the static site's
+      # Render URL, or your custom domain) once you know it. Comma-separate
+      # multiple origins if needed. Requests from other origins will be
+      # rejected by the API.
+      - key: CORS_ORIGIN
+        sync: false
+      # Demo data (10 seeded accounts sharing one password) is meant for local/dev use
+      # only. Leave this off in production — flip to "true" temporarily in the Render
+      # dashboard only when you specifically need a demo environment, and flip it back.
+      - key: SEED_DEMO_DATA
+        value: "false"
+      - key: NODE_ENV
+        value: production
