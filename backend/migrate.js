@@ -7,6 +7,8 @@ const path = require("path");
 const IDEMPOTENT_MIGRATIONS = [
   "ALTER TABLE departments ADD COLUMN IF NOT EXISTS active BOOLEAN NOT NULL DEFAULT true",
   "ALTER TABLE requests ADD COLUMN IF NOT EXISTS attachment_name TEXT",
+  "ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_hash TEXT",
+  "ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires_at TIMESTAMPTZ",
 ];
 
 async function runIdempotentMigrations(pool) {

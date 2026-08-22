@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
@@ -81,6 +81,9 @@ export default function LoginPage() {
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
+            <Link to="/forgot-password" style={{ fontSize: 12.5, alignSelf: "flex-end", marginTop: 6 }}>
+              Forgot password?
+            </Link>
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: "100%" }} disabled={loading}>

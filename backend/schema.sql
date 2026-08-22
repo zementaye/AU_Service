@@ -28,6 +28,8 @@ CREATE TABLE users (
   department_id  TEXT NOT NULL REFERENCES departments(id),
   role           user_role NOT NULL DEFAULT 'Staff',
   active         BOOLEAN NOT NULL DEFAULT true,
+  reset_token_hash        TEXT,
+  reset_token_expires_at  TIMESTAMPTZ,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

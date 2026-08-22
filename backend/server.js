@@ -4,6 +4,7 @@ require("express-async-errors");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const { pool, query } = require("./db");
 const { signToken, requireAuth, requireRole } = require("./auth");
 const { ensureSchema } = require("./migrate");
@@ -63,10 +64,15 @@ const authAttemptLimiter = rateLimit({
 });
 
 const OPEN_STATUSES = ["Submitted", "Under Review", "Assigned"];
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 /* ------------------------------------------------------------------
    Helpers
 ------------------------------------------------------------------ */
+
+function hashResetToken(token) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
 
 async function notify(client, userId, requestId, message) {
   await client.query(
@@ -143,6 +149,74 @@ app.post("/api/auth/login", authAttemptLimiter, async (req, res) => {
   const token = signToken(user);
   delete user.password_hash;
   res.json({ token, user });
+});
+
+app.post("/api/auth/forgot-password", authAttemptLimiter, async (req, res) => {
+  const { email } = req.body || {};
+  if (!email) return res.status(400).json({ error: "Email is required" });
+
+  const generic = {
+    message: "If an account exists for that email, a password reset link has been sent.",
+  };
+
+  const { rows } = await query(
+    "SELECT id, name, email FROM users WHERE lower(email) = lower($1) AND active = true",
+    [email]
+  );
+  const user = rows[0];
+
+  // Always respond the same way whether or not the account exists, so this
+  // endpoint can't be used to check which emails are registered.
+  if (!user) return res.json(generic);
+
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MS);
+  await query(
+    "UPDATE users SET reset_token_hash = $1, reset_token_expires_at = $2 WHERE id = $3",
+    [hashResetToken(rawToken), expiresAt, user.id]
+  );
+
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  const resetLink = `${frontendUrl}/reset-password?token=${rawToken}`;
+
+  // No email provider is configured yet (see .env.example) — log the link
+  // instead of emailing it so this is usable in dev/demo right now. Swap
+  // this console.log for an actual send once a provider is picked.
+  console.log(`Password reset requested for ${user.email}: ${resetLink}`);
+
+  const payload = { ...generic };
+  if (process.env.NODE_ENV !== "production") {
+    // Dev/demo convenience only — never expose the raw link in production
+    // where a real email provider should be delivering it instead.
+    payload.devResetLink = resetLink;
+  }
+  res.json(payload);
+});
+
+app.post("/api/auth/reset-password", authAttemptLimiter, async (req, res) => {
+  const { token, newPassword } = req.body || {};
+  if (!token || !newPassword) {
+    return res.status(400).json({ error: "token and newPassword are required" });
+  }
+  if (newPassword.length < 8) {
+    return res.status(400).json({ error: "New password must be at least 8 characters" });
+  }
+
+  const { rows } = await query(
+    "SELECT id FROM users WHERE reset_token_hash = $1 AND reset_token_expires_at > now() AND active = true",
+    [hashResetToken(token)]
+  );
+  const user = rows[0];
+  if (!user) {
+    return res.status(400).json({ error: "This reset link is invalid or has expired. Request a new one." });
+  }
+
+  const hash = await bcrypt.hash(newPassword, 10);
+  await query(
+    "UPDATE users SET password_hash = $1, reset_token_hash = NULL, reset_token_expires_at = NULL WHERE id = $2",
+    [hash, user.id]
+  );
+  res.json({ ok: true });
 });
 
 app.get("/api/me", requireAuth, async (req, res) => {

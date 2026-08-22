@@ -201,3 +201,52 @@ zip uniquely" section in `CLAUDE.md` accordingly:
 `AU_Service-main_<what-was-fixed>.zip` (e.g.
 `AU_Service-main_zip-naming-convention.zip` for this delivery), no date.
 
+**Request 11:** "Checked it we dont have a forgot password section" —
+built the forgot-password flow (still stubbed on email, per the earlier
+open decision — logs the reset link server-side and returns it in the API
+response outside production, rather than sending a real email).
+
+**Forgot-password flow (done):**
+- `backend/schema.sql` — added `reset_token_hash TEXT` and
+  `reset_token_expires_at TIMESTAMPTZ` to the `users` table for fresh
+  installs.
+- `backend/migrate.js` — same two columns added as idempotent
+  `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` migrations for existing
+  databases.
+- `backend/.env.example` — documented `FRONTEND_URL` (used to build the
+  reset link) and a note that no email provider is wired up yet.
+- `backend/server.js`
+  - `crypto` (Node built-in, no new dependency) for token generation/hashing.
+  - `POST /api/auth/forgot-password` — rate-limited (reuses
+    `authAttemptLimiter`), always returns the same generic message whether
+    or not the email exists (no user-enumeration), generates a random
+    token (only the SHA-256 hash is stored, 1-hour expiry), and
+    console.logs the reset link. Outside production, the response also
+    includes `devResetLink` so the flow is testable without an email
+    provider.
+  - `POST /api/auth/reset-password` — rate-limited, validates the token
+    hash + expiry + `newPassword` length, updates `password_hash`, clears
+    the reset token fields.
+- `frontend/src/lib/api.js` — added `forgotPassword(email)` and
+  `resetPassword(token, newPassword)`.
+- `frontend/src/pages/ForgotPasswordPage.jsx` (new) — email form, shows the
+  generic confirmation message and (dev-only) a direct link when
+  `devResetLink` is present.
+- `frontend/src/pages/ResetPasswordPage.jsx` (new) — reads `?token=` from
+  the URL, new/confirm password fields (reuses `.password-field-wrap` /
+  `.password-toggle` from the earlier batch), redirects to `/login` after
+  a successful reset.
+- `frontend/src/App.jsx` — added `/forgot-password` and `/reset-password`
+  routes (both public, outside `ProtectedRoute`).
+- `frontend/src/pages/LoginPage.jsx` — added a "Forgot password?" link
+  under the password field.
+
+**Still queued:**
+- Wire a real email provider into `forgot-password` when one is chosen
+  (SendGrid, Mailgun, SMTP, etc.) — replace the `console.log` in
+  `POST /api/auth/forgot-password` with an actual send, and stop returning
+  `devResetLink` once that's live.
+- Attachment storage migration — still waiting on a storage provider
+  decision (S3, R2, etc.).
+- Dark mode theme, accessibility pass, email notifications on status change.
+

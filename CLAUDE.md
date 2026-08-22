@@ -55,6 +55,21 @@ how to make changes consistently. Read this before editing frontend code.
    more `.card.card-pad` blocks).
 6. Don't touch `backend/` unless the task explicitly requires an API change —
    most UI requests only need `frontend/src`.
+7. No email provider is configured (see `backend/.env.example`). Anything
+   that would normally send an email (password reset, notifications, etc.)
+   should `console.log` the content/link instead and, outside production,
+   return it in the API response for dev convenience (see
+   `POST /api/auth/forgot-password`'s `devResetLink` pattern) rather than
+   silently doing nothing.
+8. Never store a security token (reset tokens, invite tokens, etc.) in
+   plaintext — hash it (SHA-256 is fine for this, see `hashResetToken` in
+   `server.js`) before writing to the database, and only ever compare
+   hashes. Give every such token an expiry column and check it server-side.
+9. New unauthenticated pages (forgot/reset password, etc.) go in
+   `frontend/src/App.jsx` as top-level `<Route>`s outside `ProtectedRoute`/
+   `AdminRoute`, and should reuse `.login-wrap` / `.login-art` /
+   `.login-card` from `LoginPage.jsx` for a consistent look rather than
+   inventing new page chrome.
 
 ## How this repo gets updated in this workflow
 
