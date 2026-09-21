@@ -364,3 +364,34 @@ Added a self-ping keepalive to `backend/server.js`:
   services and is absent locally, so this is a no-op outside Render — no
   new env var needed.
 - Uses Node's built-in `https` module (no new dependency).
+
+## Session: add AU Commission departments/directorates from org chart image
+
+Added 12 departments (screenshot listed "AU Commission Departments" +
+"AUC Directorates & Special Units"):
+- Cabinet of the Chairperson (CCP), Cabinet of the Deputy Chairperson (CDCP)
+- Citizens and Diaspora (CIDO), Conference Management and Publications (CMP)
+- Internal Audit (IAD), Information and Communication (DIC)
+- Medical and Health Services (MHS), Peace Fund Secretariat (PFS)
+- Women, Gender and Development (WGD)
+- Partnerships Management and Resource Mobilisation (PMRM)
+- Intelligence and Security Committee (ISC), NEPAD Coordination Unit (NEPAD)
+
+Skipped as duplicates of departments already in the table (same body, just
+worded differently in the screenshot) — flag to the user in case any of
+these should actually be split out separately:
+- "Administration & Human Resources" -> existing AHRM
+- "Legal Counsel" -> existing OLC (Office of Legal Counsel)
+- "Programming, Budget, Finance & Accounting" -> existing PBFA
+- "Strategic Planning" -> existing SPPMERM
+- "Protocol Services" -> existing PHCR (Protocol and Host Country Relations)
+
+All new rows use type 'Administrative' (matches the AdminPage.jsx
+DEPT_TYPES dropdown options — the screenshot/schema.sql's existing 'Policy'
+type isn't one of the three selectable there, so avoided introducing a
+4th ad hoc type value).
+
+Added the same 12 rows as an idempotent `INSERT ... ON CONFLICT (id) DO
+NOTHING` in migrate.js, since schema.sql's seed INSERT only runs on a
+brand-new database — the already-deployed Render DB needed this migration
+path to actually pick the rows up on next deploy.

@@ -111,7 +111,19 @@ INSERT INTO departments (id, name, code, type) VALUES
   ('ict', 'Information and Communication Technology', 'ICT', 'Administrative'),
   ('phcr', 'Protocol and Host Country Relations', 'PHCR', 'Administrative'),
   ('olc', 'Office of Legal Counsel', 'OLC', 'Administrative'),
-  ('sppmerm', 'Strategic Planning, Policy, Monitoring, Evaluation and Resource Mobilization', 'SPPMERM', 'Administrative');
+  ('sppmerm', 'Strategic Planning, Policy, Monitoring, Evaluation and Resource Mobilization', 'SPPMERM', 'Administrative'),
+  ('ccp', 'Cabinet of the Chairperson', 'CCP', 'Administrative'),
+  ('cdcp', 'Cabinet of the Deputy Chairperson', 'CDCP', 'Administrative'),
+  ('cido', 'Citizens and Diaspora', 'CIDO', 'Administrative'),
+  ('cmp', 'Conference Management and Publications', 'CMP', 'Administrative'),
+  ('iad', 'Internal Audit', 'IAD', 'Administrative'),
+  ('dic', 'Information and Communication', 'DIC', 'Administrative'),
+  ('mhs', 'Medical and Health Services', 'MHS', 'Administrative'),
+  ('pfs', 'Peace Fund Secretariat', 'PFS', 'Administrative'),
+  ('wgd', 'Women, Gender and Development', 'WGD', 'Administrative'),
+  ('pmrm', 'Partnerships Management and Resource Mobilisation', 'PMRM', 'Administrative'),
+  ('isc', 'Intelligence and Security Committee', 'ISC', 'Administrative'),
+  ('nepad', 'NEPAD Coordination Unit', 'NEPAD', 'Administrative');
 
 INSERT INTO categories (name) VALUES
   ('IT Support'), ('Logistics & Transport'), ('Facilities/Admin'),
