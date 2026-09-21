@@ -395,3 +395,12 @@ Added the same 12 rows as an idempotent `INSERT ... ON CONFLICT (id) DO
 NOTHING` in migrate.js, since schema.sql's seed INSERT only runs on a
 brand-new database — the already-deployed Render DB needed this migration
 path to actually pick the rows up on next deploy.
+
+## Session: temp deploy-check banner
+
+Added a bright pink "🚀 DEPLOY TEST" banner at the very top of App.jsx,
+outside auth (visible on /login too, no need to sign in to check it).
+Purpose: verify pushes are actually reaching the live Render static site
+after the auto-deploy connection issues. REMOVE this once confirmed —
+it's inline-styled and self-contained, just delete the sticky div block
+right after the BrowserRouter opening tag in App.jsx.

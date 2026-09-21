@@ -15,6 +15,26 @@ import SettingsPage from "./pages/SettingsPage";
 export default function App() {
   return (
     <BrowserRouter>
+      {/* TEMP DEPLOY-CHECK BANNER — remove once you've confirmed pushes are
+          reaching Render. If you see this on the live site, the frontend
+          static-site deploy pipeline is working end-to-end. */}
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 9999,
+          background: "#ff0055",
+          color: "#fff",
+          textAlign: "center",
+          padding: "14px 10px",
+          fontSize: 18,
+          fontWeight: 800,
+          letterSpacing: 0.5,
+          fontFamily: "var(--font-body, sans-serif)",
+        }}
+      >
+        🚀 DEPLOY TEST — if you can see this bright pink banner, the latest push made it live
+      </div>
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
