@@ -355,3 +355,100 @@ version of the same image.
 - Attachment storage migration — still waiting on a storage provider
   decision (S3, R2, etc.).
 - Dark mode theme, accessibility pass, email notifications on status change.
+
+## Session: self-ping to prevent Render spin-down
+
+Added a self-ping keepalive to `backend/server.js`:
+- Pings `${RENDER_EXTERNAL_URL}/health` every 10 minutes via `setInterval`.
+- `RENDER_EXTERNAL_URL` is set automatically by Render on deployed web
+  services and is absent locally, so this is a no-op outside Render — no
+  new env var needed.
+- Uses Node's built-in `https` module (no new dependency).
+
+## Session: add AU Commission departments/directorates from org chart image
+
+Added 12 departments (screenshot listed "AU Commission Departments" +
+"AUC Directorates & Special Units"):
+- Cabinet of the Chairperson (CCP), Cabinet of the Deputy Chairperson (CDCP)
+- Citizens and Diaspora (CIDO), Conference Management and Publications (CMP)
+- Internal Audit (IAD), Information and Communication (DIC)
+- Medical and Health Services (MHS), Peace Fund Secretariat (PFS)
+- Women, Gender and Development (WGD)
+- Partnerships Management and Resource Mobilisation (PMRM)
+- Intelligence and Security Committee (ISC), NEPAD Coordination Unit (NEPAD)
+
+Skipped as duplicates of departments already in the table (same body, just
+worded differently in the screenshot) — flag to the user in case any of
+these should actually be split out separately:
+- "Administration & Human Resources" -> existing AHRM
+- "Legal Counsel" -> existing OLC (Office of Legal Counsel)
+- "Programming, Budget, Finance & Accounting" -> existing PBFA
+- "Strategic Planning" -> existing SPPMERM
+- "Protocol Services" -> existing PHCR (Protocol and Host Country Relations)
+
+All new rows use type 'Administrative' (matches the AdminPage.jsx
+DEPT_TYPES dropdown options — the screenshot/schema.sql's existing 'Policy'
+type isn't one of the three selectable there, so avoided introducing a
+4th ad hoc type value).
+
+Added the same 12 rows as an idempotent `INSERT ... ON CONFLICT (id) DO
+NOTHING` in migrate.js, since schema.sql's seed INSERT only runs on a
+brand-new database — the already-deployed Render DB needed this migration
+path to actually pick the rows up on next deploy.
+
+## Session: temp deploy-check banner
+
+Added a bright pink "🚀 DEPLOY TEST" banner at the very top of App.jsx,
+outside auth (visible on /login too, no need to sign in to check it).
+Purpose: verify pushes are actually reaching the live Render static site
+after the auto-deploy connection issues. REMOVE this once confirmed —
+it's inline-styled and self-contained, just delete the sticky div block
+right after the BrowserRouter opening tag in App.jsx.
+
+## Session: dark mode, accessibility pass, deploy-banner removal (2026-10-19)
+
+**Request:** uploaded `AU_Service-main_4.zip`; "Things to add and improve on and
+lets run it and test locally and follow my claude.md rules."
+
+**Housekeeping:** the zip contained two copies of the project (outer
+`AU_Service-main/` and a nested `AU_Service-main/AU_Service-main/`). The nested
+copy was the newer one (12 added departments, Render self-ping, the temp
+deploy banner), so it was used as the base and delivered flattened. The older
+outer copy is not included.
+
+**Changes (frontend only, per CLAUDE.md rule 6):**
+- `frontend/src/App.jsx` — removed the pink "DEPLOY TEST" banner (it was marked
+  TEMP; the deploy pipeline was already confirmed working).
+- Dark mode
+  - `frontend/src/styles/global.css` — new `:root[data-theme="dark"]` token
+    block; new tokens `--chrome` (sidebar/topbar/login art/toast stay deep
+    green), `--brand-ink` (brand green as TEXT, lightens in dark),
+    `--status-completed-line`, `--status-rejected-line`, `--overlay`; replaced
+    the last hardcoded hex borders and `color: var(--forest)` text usages with
+    tokens; `.theme-toggle` / `.theme-icon` (shares `.notif-bell`, has hover +
+    `:focus-visible` motion, 450ms).
+  - `frontend/src/lib/theme.js` (new) — get/set/apply theme, `localStorage`
+    key `au-theme`, falls back to the OS setting.
+  - `frontend/src/components/ThemeToggle.jsx` (new) — ☾/☀ header icon button
+    (`aria-pressed`), added next to the gear in both the desktop sidebar and
+    mobile top bar of `Layout.jsx`. Follows OS changes live until the user picks.
+  - `frontend/index.html` — tiny pre-paint script so there is no light flash.
+- Accessibility pass
+  - `Layout.jsx` — "Skip to main content" link, `<main id="main-content">`,
+    labelled `<nav>` landmarks.
+  - `Modal.jsx` — focus moves into the dialog, Escape closes, Tab is trapped,
+    focus returns to the opener, `aria-labelledby` on the title.
+  - All error banners now `role="alert"`, success banners `role="status"`.
+  - Settings "Show passwords" toggle has `aria-pressed`.
+  - `.skip-link` / `.visually-hidden` helpers in `global.css`.
+
+**Testing note:** the cloud sandbox used for this session blocks
+`registry.npmjs.org` (proxy 403), so `npm install` could not run and the app
+could not be started there. What WAS verified: all 28 frontend files and all
+backend files pass a syntax check; the real `global.css` was rendered in
+Chromium in light and dark and screenshotted. Full local run (`npm install`,
+migrate, seed, dev servers) still needs doing on the user's machine.
+
+**Still queued:** real email provider for forgot-password / status emails,
+attachment storage migration (S3/R2 — needs a provider decision), a
+higher-resolution `au-emblem.png` (needs a source image from the user).

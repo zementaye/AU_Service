@@ -34,11 +34,11 @@ export default function ForgotPasswordPage() {
             Enter the email on your account and we'll send a link to reset it.
           </p>
 
-          {error && <div className="error-banner">{error}</div>}
+          {error && <div className="error-banner" role="alert">{error}</div>}
 
           {result ? (
             <>
-              <div className="success-banner">
+              <div className="success-banner" role="status">
                 <span aria-hidden="true">✓</span> {result.message}
               </div>
               {result.devResetLink && (

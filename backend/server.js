@@ -1,4 +1,5 @@
 require("dotenv").config();
+const https = require("https");
 const express = require("express");
 require("express-async-errors");
 const cors = require("cors");
@@ -791,6 +792,21 @@ app.use((err, req, res, next) => {
   res.status(status).json({ error: message });
 });
 
+// Render's free plan spins down web services after 15 minutes of no inbound
+// HTTP traffic, which costs the next real request a ~30-60s cold start.
+// RENDER_EXTERNAL_URL is set automatically by Render on deployed services
+// (absent locally), so this only ever runs in that environment — no extra
+// env var to configure. Pinging our own /health endpoint counts as inbound
+// traffic and keeps the service warm; res.resume() drains the response so
+// the socket doesn't hang open.
+function selfPing() {
+  const url = process.env.RENDER_EXTERNAL_URL;
+  if (!url) return;
+  https
+    .get(`${url}/health`, (res) => res.resume())
+    .on("error", (err) => console.error("Self-ping failed:", err.message));
+}
+
 const PORT = process.env.PORT || 4000;
 
 (async function start() {
@@ -817,5 +833,6 @@ const PORT = process.env.PORT || 4000;
     console.log(`AU Service Request API listening on :${PORT}`);
     escalateOverdue();
     setInterval(escalateOverdue, 15 * 60 * 1000); // sweep every 15 minutes
+    setInterval(selfPing, 10 * 60 * 1000); // keep Render free instance from spinning down
   });
 })();

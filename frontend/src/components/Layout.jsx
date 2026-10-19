@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import NotificationsBell from "./NotificationsBell";
 import Modal from "./Modal";
+import ThemeToggle from "./ThemeToggle";
 
 const NAV_ITEMS = [
   { to: "/", label: "Requests", icon: "☰" },
@@ -35,6 +36,7 @@ export default function Layout({ children }) {
 
   return (
     <div className="app-shell">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <aside className="sidebar">
         <div className="brand">
           <img src="/au-emblem.png" alt="African Union" className="brand-mark" />
@@ -42,7 +44,7 @@ export default function Layout({ children }) {
           <div className="brand-sub">African Union</div>
         </div>
 
-        <nav className="nav">
+        <nav className="nav" aria-label="Primary">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -83,6 +85,7 @@ export default function Layout({ children }) {
               <NavLink to="/settings" className="notif-bell settings-btn" title="Settings" aria-label="Settings">
                 <span className="settings-icon" aria-hidden="true">⚙</span>
               </NavLink>
+              <ThemeToggle />
               <NotificationsBell />
             </div>
           </div>
@@ -102,14 +105,15 @@ export default function Layout({ children }) {
             <NavLink to="/settings" className="notif-bell settings-btn" title="Settings" aria-label="Settings">
               <span className="settings-icon" aria-hidden="true">⚙</span>
             </NavLink>
+            <ThemeToggle />
             <NotificationsBell />
             <button className="logout-btn" onClick={() => setConfirmingLogout(true)}>
               Sign out
             </button>
           </div>
         </div>
-        <main className="main">{children}</main>
-        <nav className="mobile-tabbar">
+        <main className="main" id="main-content" tabIndex={-1}>{children}</main>
+        <nav className="mobile-tabbar" aria-label="Primary (mobile)">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}

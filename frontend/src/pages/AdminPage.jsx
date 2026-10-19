@@ -128,8 +128,8 @@ function UsersPanel() {
 
   return (
     <div className="card card-pad">
-      {error && <div className="error-banner">{error}</div>}
-      {success && <div className="success-banner">{success}</div>}
+      {error && <div className="error-banner" role="alert">{error}</div>}
+      {success && <div className="success-banner" role="status">{success}</div>}
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
         <div className="section-title" style={{ marginBottom: 0 }}>
@@ -345,7 +345,7 @@ function DepartmentsPanel() {
 
   return (
     <div className="card card-pad">
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="error-banner" role="alert">{error}</div>}
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
         <div className="section-title" style={{ marginBottom: 0 }}>
@@ -477,7 +477,7 @@ function CategoriesPanel() {
 
   return (
     <div className="card card-pad">
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="error-banner" role="alert">{error}</div>}
 
       <form className="inline-form" onSubmit={handleAdd} style={{ marginBottom: 22 }}>
         <div className="field">

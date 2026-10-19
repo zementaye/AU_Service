@@ -16,6 +16,11 @@
   --forest: #0b3d2e;
   --forest-light: #145c41;
   --forest-tint: #e6efe9;
+  /* Solid brand chrome (sidebar, top bar, login art, toast). Stays deep green
+     in both themes, unlike --forest which lightens in dark mode so it stays
+     readable as text/buttons on dark surfaces. */
+  --chrome: #0b3d2e;
+  --brand-ink: #0b3d2e; /* brand green used as TEXT (lightens in dark mode) */
 
   --gold: #b8863a;
   --gold-strong: #96692a;
@@ -35,6 +40,11 @@
   --status-closed-bg: #e2ece7;
   --status-rejected: #ac3a2c;
   --status-rejected-bg: #f8e6e2;
+  --status-completed-line: #bfe3d7;
+  --status-rejected-line: #e3c3bc;
+  --overlay: rgba(15, 25, 20, 0.45);
+
+  color-scheme: light;
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -46,6 +56,65 @@
   --font-display: "Fraunces", ui-serif, Georgia, serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ------------------------------------------------------------
+   Dark theme — toggled via <html data-theme="dark"> (see
+   lib/theme.js). Only tokens change; components never hardcode colors.
+------------------------------------------------------------- */
+:root[data-theme="dark"] {
+  --bg: #0f1613;
+  --surface: #17211c;
+  --surface-sunken: #1f2b25;
+  --ink: #e8eee9;
+  --ink-soft: #a9b7ae;
+  --ink-faint: #7d8c83;
+  --line: #2a3832;
+  --line-strong: #3a4a42;
+
+  --forest: #1d7352;
+  --forest-light: #25906a;
+  --forest-tint: #14281f;
+  --chrome: #08261c;
+  --brand-ink: #6fd0a8;
+
+  --gold: #d4a24f;
+  --gold-strong: #e3b567;
+  --gold-tint: #3a2f1a;
+
+  --status-draft: #b4afa1;
+  --status-draft-bg: #2a2a25;
+  --status-submitted: #7fb4e6;
+  --status-submitted-bg: #16283a;
+  --status-review: #e0b25c;
+  --status-review-bg: #382c14;
+  --status-assigned: #b9a3ee;
+  --status-assigned-bg: #261f3d;
+  --status-completed: #5fd0b3;
+  --status-completed-bg: #12302a;
+  --status-closed: #8fd1b4;
+  --status-closed-bg: #15291f;
+  --status-rejected: #f08a7c;
+  --status-rejected-bg: #3a1c18;
+  --status-completed-line: #1f4d41;
+  --status-rejected-line: #5e2e27;
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  color-scheme: dark;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 0 rgba(0, 0, 0, 0.3);
+  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* Smooth theme switch (short, and disabled by the reduced-motion rule below) */
+body,
+.sidebar,
+.card,
+.input,
+.select,
+.textarea,
+.modal-card {
+  transition: background-color 250ms ease, color 250ms ease, border-color 250ms ease;
 }
 
 * {
@@ -133,7 +202,7 @@ a {
 }
 
 .sidebar {
-  background: var(--forest);
+  background: var(--chrome);
   color: #f3f1e8;
   padding: 24px 18px;
   display: flex;
@@ -238,7 +307,7 @@ a {
   height: 32px;
   border-radius: 50%;
   background: var(--gold-tint);
-  color: var(--forest);
+  color: var(--brand-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -473,7 +542,7 @@ a {
   font-family: var(--font-display);
   font-size: 30px;
   font-weight: 600;
-  color: var(--forest);
+  color: var(--brand-ink);
 }
 
 .stat-label {
@@ -648,7 +717,7 @@ a {
   padding: 2px 8px;
   border-radius: 4px;
   background: var(--forest-tint);
-  color: var(--forest);
+  color: var(--brand-ink);
 }
 
 .inline-form {
@@ -666,7 +735,7 @@ a {
 .success-banner {
   background: var(--status-completed-bg);
   color: var(--status-completed);
-  border: 1px solid #bfe3d7;
+  border: 1px solid var(--status-completed-line);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
   font-size: 13.5px;
@@ -677,7 +746,7 @@ a {
 /* mobile top bar */
 .mobile-topbar {
   display: none;
-  background: var(--forest);
+  background: var(--chrome);
   color: #fff;
   padding: 14px 16px;
   align-items: center;
@@ -746,7 +815,7 @@ a {
 }
 
 .mobile-tab.active {
-  color: var(--forest);
+  color: var(--brand-ink);
 }
 
 .page-header {
@@ -820,7 +889,7 @@ a {
 
 .btn-ghost {
   background: transparent;
-  color: var(--forest);
+  color: var(--brand-ink);
   border-color: var(--line-strong);
 }
 .btn-ghost:hover {
@@ -830,7 +899,7 @@ a {
 .btn-danger {
   background: transparent;
   color: var(--status-rejected);
-  border-color: #e3c3bc;
+  border-color: var(--status-rejected-line);
 }
 .btn-danger:hover {
   background: var(--status-rejected-bg);
@@ -911,7 +980,7 @@ a {
 .error-banner {
   background: var(--status-rejected-bg);
   color: var(--status-rejected);
-  border: 1px solid #e3c3bc;
+  border: 1px solid var(--status-rejected-line);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
   font-size: 13.5px;
@@ -974,7 +1043,7 @@ a {
   height: 52px;
   border-radius: 50%;
   background: var(--forest-tint);
-  color: var(--forest);
+  color: var(--brand-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1156,7 +1225,7 @@ a {
 }
 
 .tab.active {
-  color: var(--forest);
+  color: var(--brand-ink);
   border-bottom-color: var(--gold);
 }
 
@@ -1306,7 +1375,7 @@ a.hint {
   height: 46px;
   border-radius: 50%;
   background: var(--forest-tint);
-  color: var(--forest);
+  color: var(--brand-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1439,7 +1508,7 @@ a.hint {
 
 .password-toggle:hover,
 .password-toggle:focus-visible {
-  color: var(--forest);
+  color: var(--brand-ink);
   background: var(--surface-sunken);
   outline: none;
 }
@@ -1479,7 +1548,7 @@ mark.search-highlight {
   padding: 52px;
   color: #f3f1e8;
   background: radial-gradient(circle at 20% 15%, rgba(184, 134, 58, 0.35), transparent 55%),
-    var(--forest);
+    var(--chrome);
   position: relative;
   overflow: hidden;
 }
@@ -1588,7 +1657,7 @@ mark.search-highlight {
 }
 
 .back-link:hover {
-  color: var(--forest);
+  color: var(--brand-ink);
 }
 
 .detail-grid {
@@ -1678,7 +1747,7 @@ mark.search-highlight {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 25, 20, 0.45);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1711,7 +1780,7 @@ mark.search-highlight {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  background: var(--forest);
+  background: var(--chrome);
   color: #fff;
   padding: 12px 18px;
   border-radius: var(--radius-sm);
@@ -1724,4 +1793,62 @@ mark.search-highlight {
 
 .toast.error {
   background: var(--status-rejected);
+}
+
+
+/* ---------------- Theme toggle (header icon button) ---------------- */
+/* Shares .notif-bell for size/hover; this class only adds the icon motion. */
+.theme-toggle {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.theme-icon {
+  display: inline-block;
+  transition: transform 450ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.theme-toggle:hover .theme-icon,
+.theme-toggle:focus-visible .theme-icon {
+  transform: rotate(40deg) scale(1.12);
+}
+
+/* ---------------- Accessibility helpers ---------------- */
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  background: var(--gold);
+  color: #26190a;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  transform: translateY(-200%);
+  transition: transform 180ms ease;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.main:focus {
+  outline: none;
 }

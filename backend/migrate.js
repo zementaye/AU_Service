@@ -9,6 +9,24 @@ const IDEMPOTENT_MIGRATIONS = [
   "ALTER TABLE requests ADD COLUMN IF NOT EXISTS attachment_name TEXT",
   "ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_hash TEXT",
   "ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires_at TIMESTAMPTZ",
+  // AUC directorates/cabinets/units added after initial launch (Sept 2026).
+  // ON CONFLICT (id) DO NOTHING makes this safe to re-run on every boot, and
+  // safe on a fresh DB too (schema.sql's own INSERT already seeds these, so
+  // this is a no-op there).
+  `INSERT INTO departments (id, name, code, type) VALUES
+    ('ccp', 'Cabinet of the Chairperson', 'CCP', 'Administrative'),
+    ('cdcp', 'Cabinet of the Deputy Chairperson', 'CDCP', 'Administrative'),
+    ('cido', 'Citizens and Diaspora', 'CIDO', 'Administrative'),
+    ('cmp', 'Conference Management and Publications', 'CMP', 'Administrative'),
+    ('iad', 'Internal Audit', 'IAD', 'Administrative'),
+    ('dic', 'Information and Communication', 'DIC', 'Administrative'),
+    ('mhs', 'Medical and Health Services', 'MHS', 'Administrative'),
+    ('pfs', 'Peace Fund Secretariat', 'PFS', 'Administrative'),
+    ('wgd', 'Women, Gender and Development', 'WGD', 'Administrative'),
+    ('pmrm', 'Partnerships Management and Resource Mobilisation', 'PMRM', 'Administrative'),
+    ('isc', 'Intelligence and Security Committee', 'ISC', 'Administrative'),
+    ('nepad', 'NEPAD Coordination Unit', 'NEPAD', 'Administrative')
+  ON CONFLICT (id) DO NOTHING`,
 ];
 
 async function runIdempotentMigrations(pool) {

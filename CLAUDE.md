@@ -33,6 +33,12 @@ how to make changes consistently. Read this before editing frontend code.
   - `--ink`, `--ink-soft`, `--ink-faint` — text
   - `--surface`, `--surface-sunken`, `--bg`, `--line`, `--line-strong`
   - `--radius-sm/md/lg`, `--shadow-card`, `--shadow-pop`
+- Dark mode: `:root[data-theme="dark"]` in `global.css` overrides the same
+  tokens (toggle: `components/ThemeToggle.jsx`, helper: `lib/theme.js`). Never
+  hardcode a color — if a new component needs one that has no token, add the
+  token to BOTH `:root` and the dark block. Use `--brand-ink` (not `--forest`)
+  for brand-green TEXT and `--chrome` for solid green bars/panels, because
+  `--forest` lightens in dark mode.
 - Fonts: `--font-display` (Fraunces, headings), `--font-body` (Inter),
   `--font-mono` (IBM Plex Mono).
 - Buttons: use `.btn` + a modifier (`.btn-primary`, `.btn-gold`, `.btn-ghost`,

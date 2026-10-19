@@ -48,15 +48,15 @@ export default function ResetPasswordPage() {
           <p className="page-sub">Use at least 8 characters.</p>
 
           {!token && (
-            <div className="error-banner">
+            <div className="error-banner" role="alert">
               This link is missing its reset token. Request a new one from the{" "}
               <Link to="/forgot-password">forgot password</Link> page.
             </div>
           )}
-          {error && <div className="error-banner">{error}</div>}
+          {error && <div className="error-banner" role="alert">{error}</div>}
 
           {done ? (
-            <div className="success-banner">
+            <div className="success-banner" role="status">
               <span aria-hidden="true">✓</span> Password updated. Redirecting to sign in…
             </div>
           ) : (

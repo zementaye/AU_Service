@@ -228,7 +228,7 @@ export default function RequestsListPage() {
         </button>
       </div>
 
-      {error && <div className="error-banner">{error}</div>}
+      {error && <div className="error-banner" role="alert">{error}</div>}
 
       {!loading && !isNeedsAction && (search || status) && (
         <div className="search-result-count">

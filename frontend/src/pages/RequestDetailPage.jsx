@@ -125,7 +125,7 @@ export default function RequestDetailPage() {
         <Link to="/" className="back-link">
           ← Back to requests
         </Link>
-        <div className="error-banner">{error}</div>
+        <div className="error-banner" role="alert">{error}</div>
       </div>
     );
   }
@@ -203,7 +203,7 @@ export default function RequestDetailPage() {
               </div>
             )}
             {request.status === "Rejected" && request.rejection_reason && (
-              <div className="error-banner" style={{ marginTop: 16, marginBottom: 0 }}>
+              <div className="error-banner" role="alert" style={{ marginTop: 16, marginBottom: 0 }}>
                 Rejected: {request.rejection_reason}
               </div>
             )}

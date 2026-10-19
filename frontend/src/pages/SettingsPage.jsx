@@ -83,18 +83,19 @@ export default function SettingsPage() {
               className="password-toggle"
               style={{ position: "static", marginBottom: 18 }}
               onClick={() => setShowPasswords((v) => !v)}
+              aria-pressed={showPasswords}
             >
               {showPasswords ? "Hide passwords" : "Show passwords"}
             </button>
           </div>
 
           {error && (
-            <div className="error-banner">
+            <div className="error-banner" role="alert">
               <span aria-hidden="true">⚠</span> {error}
             </div>
           )}
           {success && (
-            <div className="success-banner">
+            <div className="success-banner" role="status">
               <span aria-hidden="true">✓</span> {success}
             </div>
           )}

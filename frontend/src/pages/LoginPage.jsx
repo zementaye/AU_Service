@@ -37,7 +37,7 @@ export default function LoginPage() {
           <h1>Welcome back</h1>
           <p className="page-sub">Enter your credentials to access your department's requests.</p>
 
-          {error && <div className="error-banner">{error}</div>}
+          {error && <div className="error-banner" role="alert">{error}</div>}
 
           <div className="field">
             <label htmlFor="email">Email</label>

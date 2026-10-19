@@ -70,7 +70,7 @@ export default function ReportsPage() {
           </div>
         </div>
         <DateRangeFilter from={from} to={to} onFrom={setFrom} onTo={setTo} />
-        <div className="error-banner">{error}</div>
+        <div className="error-banner" role="alert">{error}</div>
       </div>
     );
   }
